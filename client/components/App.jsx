@@ -33,7 +33,7 @@ class App extends React.Component {
         1: {emotion: 'negative', val: 0},
         2: {emotion: 'smile', val: 50},
         3: {emotion: 'surprise', val: 50}
-      }
+      },
       showChatOnly: false,
       localStreamingEmotions:null,
       remoteStreamingEmotions:null
@@ -123,6 +123,7 @@ class App extends React.Component {
     let currentEmotions = calculateEmotions(data);
     console.log(currentEmotions);
     this.setState({emotions: currentEmotions});
+  }
 
   handleShowChat() { // TODO: change <ChatSpace/> to only chat if no video
     this.setState({
