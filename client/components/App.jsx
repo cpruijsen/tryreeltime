@@ -34,9 +34,7 @@ class App extends React.Component {
         2: {emotion: 'smile', val: 50},
         3: {emotion: 'surprise', val: 50}
       },
-      showChatOnly: false,
-      localStreamingEmotions:null,
-      remoteStreamingEmotions:null
+      showChatOnly: false
     };
 
   this.props.socket.on('photoData', data => {
