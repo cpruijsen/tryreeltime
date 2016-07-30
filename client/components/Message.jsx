@@ -25,6 +25,7 @@ class Message extends React.Component {
         return res.json();
       }).then( (result) => {
         console.log('success Giphy', result);
+        // optional todo - select different return image with fixed size.
         that.setState({message: result.data.images.original.webp});
         that.setState({giphy: true});
       }).catch( (err) => {
