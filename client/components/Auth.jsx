@@ -1,7 +1,5 @@
 import React from 'react';
 import startup from './../lib/captureStills.js';
-// className = "auth"
-// this.props.socket
 
 class Auth extends React.Component {
   constructor(props) {
@@ -11,14 +9,15 @@ class Auth extends React.Component {
     }
   }
 
-  // generic handleinput.
+  // generic handle text input.
   handleInput(e) {
     this.setState({textinput: e.target.value});
   }
 
   // start captureStills and Kairos fetch methods.
   handleSubmit() {
-    startup(this.state.textinput, this.props.socket); // passing down to doAuth in /captureStills
+    startup(this.state.textinput, this.props.socket); 
+      // pass down socket to doAuth function in ./captureStills.js
   }
 
   render() {

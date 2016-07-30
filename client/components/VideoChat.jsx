@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { getPeer, getMyId, establishPeerCall } from '../lib/webrtc';
+import { getPeer, getMyId, establishPeerCall, establishPeerConnection} from '../lib/webrtc';
+import recorddd from '../lib/mediaRecorder';
 
 require('dotenv').config();
 
@@ -36,6 +37,11 @@ class VideoChat extends React.Component {
       peerId === this.state.myId ? null : this.makeNewCall(this.state.localStream, peerId);
     });
 
+
+//////////////////////////////////////////
+////  listen 4 server-side socket announcement of new s3 videoUrl; post it to Kairos
+//////////////////////////////////////////
+
     this.props.socket.on('videoUrls',  (data) => {
       console.log('videoUrls on client side', data.publicUrl);
       fetch(`https://api.kairos.com/media?source=${data.publicUrl}`, {
@@ -57,12 +63,22 @@ class VideoChat extends React.Component {
     });
 
 
-
+//////////////////////////////////////////
+////  listen 4 server-side socket announcement of new s3 photoUrls as well; Kairos post currently elsewhere
+//////////////////////////////////////////
 
     this.props.socket.on('photoUrls',  (data) => {
       console.log('there are photoUrls too!')
     });
-  }
+
+    this.props.socket.on('buttonClicked',  (data) => {
+      console.log('button event fired!', data);
+      navigator.mediaDevices.getUserMedia(constraints)
+      .then( (localStream) => {
+        console.log('stream after getUserMedia', localStream);
+      });
+    });
+  }  //------------------------------------------------end of constructor
 
   componentDidMount() {
 
@@ -75,47 +91,28 @@ class VideoChat extends React.Component {
       video: true
     };
 
+    //WHEN THE COMPONENT MOUNTS, GET VID RIGHT AWAY! 
     navigator.mediaDevices.getUserMedia(constraints)
       .then( (localStream) => {
-
         console.log('stream after getUserMedia', localStream);
+         window.mediaRecorder = new MediaRecorder(localStream);
+         // setInterval recorddd();
+         var socket = this.props.socket;
+         //step 2-3: OR ON BUTTON CLICK -- send to chat?
 
-        window.mediaRecorder = new MediaRecorder(localStream);
-        var recordedChunks = [];
-        var handleDataAvailable = (event) => {
-          if (event.data.size > 0) {
-            recordedChunks.push(event.data);
-          } else {
-            console.log('no stream? error in handleDataAvailable');
-          }
-        };
-        mediaRecorder.ondataavailable = handleDataAvailable;
-        mediaRecorder.onstop = () => {
-          console.log('stop fired');
 
-          var file = new File(recordedChunks, `userid.webm`, {
-            type: 'video/webm'
-          });
+          setInterval(function(){
+            recorddd(localStream, socket);
+            console.log(localStream);
+            // var localStream = navigator.mediaDevices.getUserMedia(constraints);
+          }, 30000);
 
-          console.log('file', file);
-          this.props.socket.emit('videoFile', file);
 
-          var reader = new FileReader();
 
-          reader.onload = function( e ) {
-          }.bind( this );
-          reader.readAsText( file );
-
-        };
-
-        mediaRecorder.start();
-
-        window.setTimeout( () => {
-          mediaRecorder.stop();
-        }, 5000)
-        return localStream;
+          return localStream;
       })
       .then(function(whatisEVENHERE){
+        //you should remove this function
         console.log('nutherCheck', whatisEVENHERE);
         return whatisEVENHERE;
       })
@@ -137,11 +134,17 @@ class VideoChat extends React.Component {
   handleNewCall(call) {
     this.chatCalls.push(call);
     call.on('stream', (remoteStream) => {
+      //THEN TEST THIS!! !! !! !! 
+      // recorddd(remoteStream, this.props.socket);
       var newRemoteVid = document.createElement('video');
       newRemoteVid.setAttribute('class', 'remote-video');
       newRemoteVid.setAttribute('autoPlay', 'true');
       document.querySelector('#v-chat').appendChild(newRemoteVid);
       newRemoteVid.srcObject = remoteStream;
+      return remoteStream;
+    })
+    .then(function(remoteStream){
+      console.log('you have a remote stream!!!!!!!!!');
     });
   }
 
@@ -178,7 +181,7 @@ class VideoChat extends React.Component {
   render() {
     return (
       <div id="v-chat">
-        <video onClick={this.changeFilter.bind(this)} className={`${this.state.localVideoClassName} ${this.state.filterArray[this.state.filtercounter]}`} autoPlay></video>
+        <video onClick={()=>this.changeFilter.bind(this)} className={`${this.state.localVideoClassName} ${this.state.filterArray[this.state.filtercounter]}`} autoPlay></video>
       </div>
     );
   }

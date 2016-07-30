@@ -6754,4 +6754,13 @@ button.close {
     display: none !important;
   }
 }
+li {
+  display: inline-block;
+  padding: 15px;
+}
+/*nav {
+  height: auto;*/
+/*  width:100%;*/
+/*  background-color: rgba(224,122,122,0.4);
+}*/
 /*# sourceMappingURL=bootstrap.css.map */
