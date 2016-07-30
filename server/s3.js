@@ -1,14 +1,9 @@
 var AWS = require('aws-sdk');
 require('dotenv').config();
-<<<<<<< HEAD
 
 // var vids = require('../client/components/VideoChat.jsx');
 
 var s3 = new AWS.S3(); //{apiVersion: '2006-03-01'}
-=======
-  
-var s3 = new AWS.S3(); 
->>>>>>> c95be3240d748997bb66a3c2f203a419d8484e64
 AWS.config.update({accessKeyId: process.env.app_id, secretAccessKey: process.env.app_key});
 AWS.config.update({region:'us-west-2'});
 
@@ -27,15 +22,12 @@ const postTheVideo = (videoFile) => {
     ACL: 'public-read-write'
   };
 
-<<<<<<< HEAD
   //CONNECT WITH THE BUCKET --once things work, experiment to make sure it is necessary
   s3.createBucket({Bucket: process.env.bucket}, function() {
     //put an object in the bucket -- change to post if works!
-=======
 
   // s3.createBucket({Bucket: process.env.bucket}, function() {
-    //put an object in the bucket -- change to post if works! 
->>>>>>> c95be3240d748997bb66a3c2f203a419d8484e64
+    //put an object in the bucket -- change to post if works!
     s3.putObject(params, function(err, data) {
         if (err)
             console.log(err)
@@ -55,6 +47,7 @@ const postTheVideo = (videoFile) => {
 
     //send them off
     return {publicUrl:publicUrl, presignedUrl: presignedUrl};
+  });
 };
 
 /////////////////////////
@@ -76,11 +69,7 @@ const postThePhoto = (photo) => {
   };
 
  s3.createBucket({Bucket: process.env.bucket}, function() {
-<<<<<<< HEAD
   //THE BODY IS WHAT YOU ARE INPUTTING, the KEY IS THE TITLE!
-=======
->>>>>>> c95be3240d748997bb66a3c2f203a419d8484e64
-
   s3.putObject(params, function(err, data) {
       if (err) {
           console.log(err)
@@ -102,10 +91,6 @@ const postThePhoto = (photo) => {
 
 module.exports.postTheVideo = postTheVideo;
 module.exports.postThePhoto = postThePhoto;
-
-
-<<<<<<< HEAD
-
 // | authenticated-read | aws-exec-read | bucket-owner-read | bucket-owner-full-control private | public-read |
 //Content-Type: application/pdf
 //Content-Transfer-Encoding: base64
@@ -113,5 +98,3 @@ module.exports.postThePhoto = postThePhoto;
 // var url = s3.getSignedUrl('getObject', params);
 //presigned
 // console.log('The URL is', url);
-=======
->>>>>>> c95be3240d748997bb66a3c2f203a419d8484e64

@@ -91,27 +91,22 @@ class VideoChat extends React.Component {
       video: true
     };
 
-    //WHEN THE COMPONENT MOUNTS, GET VID RIGHT AWAY! 
+    //WHEN THE COMPONENT MOUNTS, GET VID RIGHT AWAY!
     navigator.mediaDevices.getUserMedia(constraints)
       .then( (localStream) => {
         console.log('stream after getUserMedia', localStream);
-         window.mediaRecorder = new MediaRecorder(localStream);
-         // setInterval recorddd();
          var socket = this.props.socket;
+          recorddd(localStream, socket);
          //step 2-3: OR ON BUTTON CLICK -- send to chat?
 
-
-          setInterval(function(){
+          setInterval(() => {
             recorddd(localStream, socket);
             console.log(localStream);
-            // var localStream = navigator.mediaDevices.getUserMedia(constraints);
           }, 30000);
-
-
-
+          
           return localStream;
       })
-      .then(function(whatisEVENHERE){
+      .then((whatisEVENHERE) => {
         //you should remove this function
         console.log('nutherCheck', whatisEVENHERE);
         return whatisEVENHERE;
@@ -134,7 +129,7 @@ class VideoChat extends React.Component {
   handleNewCall(call) {
     this.chatCalls.push(call);
     call.on('stream', (remoteStream) => {
-      //THEN TEST THIS!! !! !! !! 
+      //THEN TEST THIS!! !! !! !!
       // recorddd(remoteStream, this.props.socket);
       var newRemoteVid = document.createElement('video');
       newRemoteVid.setAttribute('class', 'remote-video');
