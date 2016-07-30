@@ -19,7 +19,7 @@ class Message extends React.Component {
       that.setState({message: text});
     } else {
       text = text.slice(6).split(' ').join('%20'); // replace spaces by %20 (http encoding) and slice off the `/giphy` part.
-      let url = `http://api.giphy.com/v1/gifs/translate?s=${text}&api_key=dc6zaTOxFJmzC`;
+      let url = `https://api.giphy.com/v1/gifs/translate?s=${text}&api_key=dc6zaTOxFJmzC`;
 
       fetch(url).then( (res) => {
         return res.json();

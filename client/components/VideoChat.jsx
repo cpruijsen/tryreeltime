@@ -126,7 +126,7 @@ class VideoChat extends React.Component {
   setUpVideoStream(localStream) {
     const localVideo = document.querySelector('.local-video');
     localVideo.srcObject = localStream;
-    this.setState({localStream: localStream});    
+    this.setState({localStream: localStream});
 
     // this.establishNewCall(this.state.localStream, this.props.isSource ? null : this.props.peerId);
     if (!this.props.isSource) {
@@ -151,12 +151,14 @@ class VideoChat extends React.Component {
     this.handleNewCall(newCall);
   }
 
+  // TODO: socket receive video class and change remote video accordingly
+
   establishNewCall(mediaStream, sourceId) {
     establishPeerCall(mediaStream, sourceId)
       .then((remoteStream) => {
-        // const remoteVideo = document.querySelector('.remote-video');
         var newRemoteVid = document.createElement('video');
-        newRemoteVid.setAttribute('class', 'remote-video');
+        newRemoteVid.setAttribute('class', `remote-video ${this.state.filterArray[this.state.filtercounter]}`);
+        // add attr sourceId
         newRemoteVid.setAttribute('autoPlay', 'true');
         document.querySelector('#v-chat').appendChild(newRemoteVid);
         newRemoteVid.srcObject = remoteStream;
@@ -164,21 +166,13 @@ class VideoChat extends React.Component {
       .catch(console.error.bind(console));
   }
 
-  /* filter classes:
-  ig-willow, ig-earlybird, ig-mayfair, ig-amaro, ig-xpro2, ig-toaster, ig-kelvin, ig-brannan
-
-  TODO: separate remote video filters and local video filters.
-  intended functionality:
-  - you can control your localVideo filter, and the socket emits your filter choice to the connected peers
-  - you receive filter info from connected peers and remoteVideo is filtered with those filters.
-  */
-
   changeFilter() {
     if (this.state.filtercounter < this.state.filterArray.length - 1) {
       this.setState({filtercounter: this.state.filtercounter + 1});
     } else {
       this.setState({filtercounter: 0});
     }
+    // TODO: add socket emit local video class on change filter
   }
 
   render() {
