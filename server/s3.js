@@ -65,7 +65,7 @@ const postThePhoto = (photo) => {
   };
 
  s3.createBucket({Bucket: process.env.bucket}, function() {
-  //THE BODY IS WHAT YOUR ARE INPUTTING, the KEY IS THE TITLE!
+  //THE BODY IS WHAT YOU ARE INPUTTING, the KEY IS THE TITLE!
 
   s3.putObject(params, function(err, data) {
       if (err) {
