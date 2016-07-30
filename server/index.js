@@ -8,7 +8,9 @@ const bodyParser = require('body-parser');
 // Init
 const app = express();
 const server = http.createServer(app);
+const ExpressPeerServer = require('peer').ExpressPeerServer;
 const io = socket.listen(server);
+const peerServer = ExpressPeerServer(server, { debug: true });
 
 // Config
 const EXPRESS_PORT = 3000;
@@ -19,6 +21,13 @@ const client = require('twilio')(twilioCredentials.accountSid, twilioCredentials
 
 // Routes
 app.use(express.static(`${__dirname}/../client`));
+
+// Peer server
+app.use('/peerjs', peerServer);
+
+app.get('/port', function(req, res) {
+  res.json(process.env.PORT);
+})
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -87,6 +96,11 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('pause', time);
   });
 
+  socket.on('newCall', (peerid) => {
+    console.log('New call detected');
+    socket.broadcast.emit('newCall', peerid);
+  });
+
 // Video & Photo Harvesting events
   socket.on('videoFile', (theVideo) => {
     // console.log('Video File received via socket ');
@@ -103,5 +117,11 @@ io.on('connection', (socket) => {
 });
 
 
+peerServer.on('connection', function(id) {
+  /* ........... */
+  console.log('id is: ', id)
+  console.log('connection detected');
+});
+
 server.listen(process.env.PORT || EXPRESS_PORT);
-console.log(`Listening on port ${EXPRESS_PORT}`);
+console.log(`Listening on port ${process.env.PORT || EXPRESS_PORT}`);

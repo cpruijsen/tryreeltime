@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { establishPeerCall } from '../lib/webrtc';
+import { getPeer, getMyId, establishPeerCall } from '../lib/webrtc';
 
 require('dotenv').config();
 
@@ -10,13 +10,31 @@ class VideoChat extends React.Component {
 
     this.state = {
       localStream: null,
+      myId: null,
       filterArray: ['ig-willow', 'ig-earlybird', 'ig-mayfair', 'ig-amaro', 'ig-xpro2', 'ig-toaster', 'ig-kelvin', 'ig-brannan'],
       filtercounter: 0,
-      remoteVideoClassName: "remote-video",
       localVideoClassName: "local-video"
     };
 
+    // Keeps track of all call connections currently on
+    this.chatCalls = [];
+
+    var socket = this.props.socket;
+
     this.setUpVideoStream = this.setUpVideoStream.bind(this);
+    // Listens for calls from other peers
+    getPeer().on('call', (call) => {
+      call.answer(this.state.localStream);
+      console.log('New RTC call works - acting as source');
+      this.handleNewCall(call);
+      if (this.props.isSource) {
+        socket.emit('newCall', call.peer);
+      }
+    });
+
+    socket.on('newCall', (peerId) => {
+      peerId === this.state.myId ? null : this.makeNewCall(this.state.localStream, peerId);
+    });
 
     this.props.socket.on('videoUrls',  (data) => {
       console.log('videoUrls on client side', data.publicUrl);
@@ -47,6 +65,11 @@ class VideoChat extends React.Component {
   }
 
   componentDidMount() {
+
+    getMyId().then((myId) => {
+      this.setState({myId: myId});
+    });
+
     const constraints = {
       audio: false,
       video: true
@@ -103,11 +126,40 @@ class VideoChat extends React.Component {
   setUpVideoStream(localStream) {
     const localVideo = document.querySelector('.local-video');
     localVideo.srcObject = localStream;
+    this.setState({localStream: localStream});    
 
-    establishPeerCall(localStream, this.props.isSource ? null : this.props.peerId)
+    // this.establishNewCall(this.state.localStream, this.props.isSource ? null : this.props.peerId);
+    if (!this.props.isSource) {
+      this.makeNewCall(this.state.localStream, this.props.peerId);
+    }
+  }
+
+  handleNewCall(call) {
+    this.chatCalls.push(call);
+    call.on('stream', (remoteStream) => {
+      var newRemoteVid = document.createElement('video');
+      newRemoteVid.setAttribute('class', 'remote-video');
+      newRemoteVid.setAttribute('autoPlay', 'true');
+      document.querySelector('#v-chat').appendChild(newRemoteVid);
+      newRemoteVid.srcObject = remoteStream;
+    });
+  }
+
+  makeNewCall(mediaStream, sourceId) {
+    const newCall = getPeer().call(sourceId, mediaStream);
+    console.log('New call established - acting as receiver');
+    this.handleNewCall(newCall);
+  }
+
+  establishNewCall(mediaStream, sourceId) {
+    establishPeerCall(mediaStream, sourceId)
       .then((remoteStream) => {
-        const remoteVideo = document.querySelector('.remote-video');
-        remoteVideo.srcObject = remoteStream;
+        // const remoteVideo = document.querySelector('.remote-video');
+        var newRemoteVid = document.createElement('video');
+        newRemoteVid.setAttribute('class', 'remote-video');
+        newRemoteVid.setAttribute('autoPlay', 'true');
+        document.querySelector('#v-chat').appendChild(newRemoteVid);
+        newRemoteVid.srcObject = remoteStream;
       })
       .catch(console.error.bind(console));
   }
@@ -131,9 +183,8 @@ class VideoChat extends React.Component {
 
   render() {
     return (
-      <div>
+      <div id="v-chat">
         <video onClick={this.changeFilter.bind(this)} className={`${this.state.localVideoClassName} ${this.state.filterArray[this.state.filtercounter]}`} autoPlay></video>
-        <video onClick={this.changeFilter.bind(this)} className={`${this.state.remoteVideoClassName} ${this.state.filterArray[this.state.filtercounter]}`} autoPlay></video>
       </div>
     );
   }

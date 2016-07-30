@@ -6,9 +6,6 @@ node_modules/
 
 npm-debug.log
 
-.env
+
 .eslintrc.js
 
-TwilioCredentials.js
-twilioCredentials.js
-server/twilioCredentials.js

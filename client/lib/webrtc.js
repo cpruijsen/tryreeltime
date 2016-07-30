@@ -1,6 +1,12 @@
 import Peer from 'peerjs';
 
-const peer = new Peer({ key: 'dyf2h2fyul2nvcxr' });
+const peer = new Peer({ host: '/', path: '/peerjs', port: '', secure: true });
+
+console.log('newest version');
+
+const getPeer = () => {
+  return peer;
+};
 
 // Returns a Promise that is resolved with this peer's ID, assigned by the signaling server.
 const getMyId = () => new Promise((resolve, reject) => {
@@ -15,7 +21,7 @@ const getMyId = () => new Promise((resolve, reject) => {
 });
 
 // Returns a Promise that is resolved with an active peer.js DataConnection.
-// If sourceId is specified, this will connect to an existing peer with that source ID.
+// If sourceId is specified, this will connect to an existing ppeer with that source ID.
 // If sourceId is not specified, this will listen for an incoming connection.
 const establishPeerConnection = (sourceId) => new Promise((resolve, reject) => {
   const connect = () => {
@@ -93,6 +99,7 @@ const establishPeerCall = (mediaStream, sourceId) => new Promise((resolve, rejec
 });
 
 export {
+  getPeer,
   getMyId,
   establishPeerConnection,
   establishPeerCall,
