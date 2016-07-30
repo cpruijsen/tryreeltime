@@ -57,7 +57,7 @@ const postThePhoto = (photo) => {
   let buf = new Buffer(photo.replace(/^data:image\/\w+;base64,/, ""),'base64');
   let params = {
     Bucket: process.env.bucket,
-    Key: `Photo for Kairos ${process.env.photo_id}`,
+    Key: `Photo_for_Kairos_${process.env.photo_id}`,
     Body: buf,
     ContentEncoding: 'base64',
     ContentType: 'image/jpeg',
